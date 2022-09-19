@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="lwq.mapper.CommentMapper">
+    <resultMap id="BaseResultMap" type="lwq.pojo.Comment">
+        <id column="comment_id" property="comment_id" jdbcType="BIGINT"/>
+        <result column="comment_con" property="comment_con" jdbcType="VARCHAR"/>
+        <result column="comment_time" property="comment_time" jdbcType="VARCHAR"/>
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="article_id" property="article_id" jdbcType="BIGINT"/>
+    </resultMap>
+    <resultMap id="BaseResultMap1" type="lwq.pojo.Comment">
+        <id column="comment_id" property="comment_id" jdbcType="BIGINT"/>
+        <result column="comment_con" property="comment_con" jdbcType="VARCHAR"/>
+        <result column="comment_time" property="comment_time" jdbcType="VARCHAR"/>
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="article_id" property="article_id" jdbcType="BIGINT"/>
+        <result column="article_title" property="article_title" jdbcType="VARCHAR"/>
+    </resultMap>
+    <insert id="addcomment" parameterType="lwq.pojo.Comment">
+        insert into comment(comment_con,comment_time,id,article_id)
+        values (#{comment_con},#{comment_time},#{id},#{article_id})
+    </insert>
+
+    <delete id="deletecom" parameterType="int">
+        delete from comment
+        where comment_id = #{comment_id}
+    </delete>
+
+    <select id="findcomById" resultMap="BaseResultMap1" parameterType="java.lang.Integer">
+        select comment.*,article.article_title
+        from article inner join comment
+                                on comment.article_id=article.article_id
+        WHERE comment.id=#{id}
+    </select>
+
+    <update id="updatecom"  parameterType="lwq.pojo.Comment">
+        update comment
+        <set>
+            <if test="comment_con!=null and comment_con !=''">
+                comment_con=#{comment_con}
+            </if>
+        </set>
+        where comment_id = #{comment_id}
+    </update>
+
+    <select id="findTotal" resultType="java.lang.Integer">
+        select count(comment_id) from comment
+    </select>
+
+    <select id="queryCommentPage" resultMap="BaseResultMap1" parameterType="java.lang.Integer">
+        select comment.*,article.article_title
+        from article inner join comment
+                                on comment.article_id=article.article_id
+            limit #{startRows,jdbcType=INTEGER},8
+    </select>
+
+    <select id="querycom" resultMap="BaseResultMap1">
+        select comment.*,article.article_title
+        from article inner join comment
+                                on comment.article_id=article.article_id
+        where comment_con like concat('%',#{comment_con},'%')
+            limit #{startRows,jdbcType=INTEGER},8
+    </select>
+</mapper>

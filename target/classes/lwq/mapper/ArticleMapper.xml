@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="lwq.mapper.ArticleMapper">
+    <resultMap id="BaseResultMap" type="lwq.pojo.Article">
+        <id column="article_id" property="article_id" jdbcType="BIGINT"/>
+        <result column="article_title" property="article_title" jdbcType="VARCHAR"/>
+        <result column="article_content" property="article_content" jdbcType="VARCHAR"/>
+        <result column="release_time" property="release_time" jdbcType="INTEGER"/>
+        <result column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="article_img" property="article_img" jdbcType="VARCHAR"/>
+        <result column="sort_id" property="sort_id" jdbcType="INTEGER"/>
+    </resultMap>
+    <resultMap id="BaseResultMap1" type="lwq.pojo.Comment">
+        <id column="comment_id" property="comment_id" jdbcType="BIGINT"/>
+        <result column="comment_con" property="comment_con" jdbcType="VARCHAR"/>
+        <result column="comment_time" property="comment_time" jdbcType="VARCHAR"/>
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="article_id" property="article_id" jdbcType="BIGINT"/>
+        <result column="nickname" property="nickname" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="BaseResultMap2" type="lwq.pojo.Article">
+        <id column="article_id" property="article_id" jdbcType="BIGINT"/>
+        <result column="article_title" property="article_title" jdbcType="VARCHAR"/>
+        <result column="article_content" property="article_content" jdbcType="VARCHAR"/>
+        <result column="release_time" property="release_time" jdbcType="INTEGER"/>
+        <result column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="article_img" property="article_img" jdbcType="VARCHAR"/>
+        <result column="sort_id" property="sort_id" jdbcType="INTEGER"/>
+        <result column="sort_name" property="sort_name" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="BaseResultMap3" type="lwq.pojo.Article">
+        <id column="article_id" property="article_id" jdbcType="BIGINT"/>
+        <result column="article_title" property="article_title" jdbcType="VARCHAR"/>
+        <result column="article_content" property="article_content" jdbcType="VARCHAR"/>
+        <result column="release_time" property="release_time" jdbcType="INTEGER"/>
+        <result column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="article_img" property="article_img" jdbcType="VARCHAR"/>
+        <result column="sort_id" property="sort_id" jdbcType="INTEGER"/>
+        <result column="sort_name" property="sort_name" jdbcType="VARCHAR"/>
+        <result column="nickname" property="nickname" jdbcType="VARCHAR"/>
+    </resultMap>
+    <insert id="addarticle" parameterType="lwq.pojo.Article">
+        insert into article(article_title,article_content,release_time,id,article_img,sort_id)
+        values (#{article_title},#{article_content},#{release_time},#{id},#{article_img},#{sort_id})
+    </insert>
+
+    <select id="findcomment" resultMap="BaseResultMap1" parameterType="java.lang.Integer">
+        select article.*,comment.comment_id,comment_con,comment_time,user.nickname
+        from comment
+                 inner join article
+                            on article.article_id=comment.article_id
+                 inner join user
+                            on comment.id=user.id
+        where article.article_id=#{article_id}
+    </select>
+
+    <!--分页查询文章-->
+    <select id="queryArticlePage" resultMap="BaseResultMap3" parameterType="java.lang.Integer">
+        select article.*,sort.sort_name,user.nickname
+        from article
+                 inner join sort
+                            on article.sort_id=sort.sort_id
+                 inner join user
+                            on article.id=user.id
+                            ORDER BY release_time desc
+        limit #{startRows,jdbcType=INTEGER},8
+    </select>
+
+<!-- 分页查文章2-->
+    <select id="queryArticlePage1" resultMap="BaseResultMap2" parameterType="java.lang.Integer">
+        select article.*
+        from article
+            limit #{startRows,jdbcType=INTEGER},8
+    </select>
+
+    <select id="findmine" resultMap="BaseResultMap2" parameterType="java.lang.Integer">
+        select article.*,sort.sort_name
+        from sort inner join article
+        on article.sort_id=sort.sort_id
+        where id=#{id}
+        limit #{startRows,jdbcType=INTEGER},8
+    </select>
+
+    <select id="lookarticle" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select article.*,user.nickname
+        from  article inner join user on article.id=user.id
+        where article_id = #{article_id}
+    </select>
+
+    <insert id="setsort" >
+        insert into sortset(article_id,sort_id)
+        values (#{article_id},#{sort_id})
+    </insert>
+
+    <select id="lookitemByid" resultMap="BaseResultMap2" parameterType="java.lang.Integer">
+        SELECT article.*,sortset.sort_id,sort.sort_name
+        FROM `sortset` inner join sort on sort.sort_id=sortset.sort_id inner join article on article.article_id=sortset.article_id
+        WHERE article.article_id=#{article_id}
+    </select>
+
+    <select id="lookBysort" resultMap="BaseResultMap2" parameterType="java.lang.Integer">
+        SELECT article.*,sortset.sort_id,sort.sort_name
+        FROM `sortset` inner join sort on sort.sort_id=sortset.sort_id inner join article on article.article_id=sortset.article_id
+        WHERE sort.sort_id = #{sort_id}
+            limit #{startRows,jdbcType=INTEGER},8
+    </select>
+
+    <delete id="deleteart" parameterType="int">
+        delete from article
+        where article_id = #{article_id}
+    </delete>
+
+    <update id="updateart"  parameterType="lwq.pojo.Article">
+        update article
+        <set>
+            <if test="article_title !=null and article_title !=''">
+                article_title=#{article_title},
+            </if>
+            <if test="article_content !=null and article_content !=''">
+                article_content=#{article_content},
+            </if>
+            <if test="article_img !=null and article_img !=''">
+                article_img=#{article_img},
+            </if>
+            <if test="sort_id !=null and sort_id !=''">
+                sort_id=#{sort_id},
+            </if>
+        </set>
+        where article_id = #{article_id}
+    </update>
+
+
+    <select id="findblog"   resultMap ="BaseResultMap3"  >
+        select article.*,sort.sort_name,user.nickname
+        from article
+                 inner join sort
+                            on article.sort_id=sort.sort_id
+                 inner join user
+                            on article.id=user.id
+        where article_title like concat('%',#{article_title},'%')
+            limit #{startRows,jdbcType=INTEGER},8
+    </select>
+
+    <select id="findblog1"   resultMap ="BaseResultMap2"  >
+        select article.*,sort.sort_name
+        from sort inner join article
+                             on article.sort_id=sort.sort_id
+        where article_title like concat('%',#{article_title},'%')
+    </select>
+
+    <select id="findblognum1"  resultType="java.lang.Integer" >
+        select count(article_id)
+        from article
+        where article_title like concat('%',#{article_title},'%')
+    </select>
+
+    <select id="findTotal" resultType="java.lang.Integer">
+        select count(article_id) from article
+    </select>
+
+    <select id="findbysort" resultMap="BaseResultMap2">
+        select article.*,sort.sort_name
+        from article
+                 inner join sort
+                            on article.sort_id=sort.sort_id
+        where sort_name=#{sort_name}
+            limit #{startRows,jdbcType=INTEGER},8
+    </select>
+
+    <select id="findbysortnum" resultType="java.lang.Integer">
+        select count(article_id)
+        from article
+                 inner join sort
+                            on article.sort_id=sort.sort_id
+        where sort_name=#{sort_name}
+    </select>
+</mapper>

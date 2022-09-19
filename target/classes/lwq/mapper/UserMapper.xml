@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="lwq.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="lwq.pojo.User">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="username" property="username" jdbcType="VARCHAR"/>
+        <result column="userpwd" property="userpwd" jdbcType="VARCHAR"/>
+        <result column="role_id" property="role_id" jdbcType="INTEGER"/>
+        <result column="nickname" property="nickname" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="motto" property="motto" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="BaseResultMap1" type="lwq.pojo.User">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="username" property="username" jdbcType="VARCHAR"/>
+        <result column="userpwd" property="userpwd" jdbcType="VARCHAR"/>
+        <result column="role_id" property="role_id" jdbcType="INTEGER"/>
+        <result column="nickname" property="nickname" jdbcType="VARCHAR"/>
+        <result column="role_name" property="role_name" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="motto" property="motto" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="login" resultMap="BaseResultMap" parameterType="String" >
+        select * from user where username=#{username} and userpwd=#{userpwd}
+    </select>
+
+    <select id="register" resultMap="BaseResultMap">
+        insert into user(username,userpwd,role_id,nickname,phone,email,motto) values (#{username},#{userpwd},#{role_id},#{nickname},#{phone},#{email},#{motto})
+    </select>
+
+    <select id="findAll" resultMap ="BaseResultMap1">
+        select user.*,role.role_name
+        from user inner join role on user.role_id=role.role_id
+        where user.role_id=#{role_id}
+    </select>
+
+    <!--分页查询用户-->
+    <select id="queryUserPage" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+            user.*,role.role_name
+        from user inner join role on user.role_id=role.role_id
+        where user.role_id=#{role_id}
+        limit #{startRows,jdbcType=INTEGER},8
+    </select>
+
+    <select id="findById"   resultMap ="BaseResultMap1"  >
+        select user.*,role.role_name
+        from user inner join role on user.role_id=role.role_id
+        where id=#{id}
+    </select>
+
+    <select id="findvague"   resultMap ="BaseResultMap1"  >
+        select user.*,role.role_name
+        from user inner join role on user.role_id=role.role_id
+        where nickname like concat('%',#{nickname},'%')
+        limit #{startRows,jdbcType=INTEGER},8
+    </select>
+
+
+    <delete id="deleteById" parameterType="int">
+        delete from user where id= #{id}
+    </delete>
+
+    <update id="updatepwd"  parameterType="lwq.pojo.User">
+        update user
+        <set>
+            <if test="userpwd !=null and userpwd !=''">
+                userpwd=#{userpwd},
+            </if>
+            <if test="nickname !=null and nickname !=''">
+                nickname=#{nickname},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+
+
+    <update id="update"  parameterType="lwq.pojo.User">
+        update user
+        <set>
+            <if test="nickname !=null and nickname !=''">
+                nickname=#{nickname},
+            </if>
+            <if test="phone !=null and phone !=''">
+                phone=#{phone},
+            </if>
+            <if test="email !=null and email !=''">
+                email=#{email},
+            </if>
+            <if test="motto!=null and motto !=''">
+                motto=#{motto},
+            </if>
+
+        </set>
+        where id=#{id}
+    </update>
+
+    <select id="findTotal" resultType="java.lang.Integer">
+        select count(id) from user
+    </select>
+</mapper>

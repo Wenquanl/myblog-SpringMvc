@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="lwq.mapper.SortMapper">
+    <resultMap id="BaseResultMap" type="lwq.pojo.Sort">
+        <id column="sort_id" property="sort_id" jdbcType="INTEGER"/>
+        <result column="sort_name" property="sort_name" jdbcType="VARCHAR"/>
+    </resultMap>
+    <insert id="addsort" parameterType="lwq.pojo.Sort">
+        insert into sort(sort_name)
+        values (#{sort_name})
+    </insert>
+
+    <update id="updatesort"  parameterType="lwq.pojo.Sort">
+        update sort
+        <set>
+            <if test="sort_name!=null and sort_name !=''">
+                sort_name=#{sort_name},
+            </if>
+        </set>
+        where sort_id = #{sort_id}
+    </update>
+
+    <select id="findTotal" resultType="java.lang.Integer">
+        select count(sort_id) from sort
+    </select>
+
+    <select id="querySortPage" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select *
+        from sort
+        order by sort_id
+            limit #{startRows,jdbcType=INTEGER},8
+    </select>
+    <select id="querySort" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select *
+        from sort
+        order by sort_id
+
+    </select>
+    <delete id="deletesort" parameterType="int">
+        delete from sort
+        where sort_id = #{sort_id}
+    </delete>
+</mapper>
